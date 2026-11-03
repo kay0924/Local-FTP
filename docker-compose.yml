@@ -1,0 +1,42 @@
+# File Server — FileBrowser + theme + per-user folder access (+ optional FTP).
+# Everything lives in this folder. First time: bash setup.sh   (see README.md)
+#   Web only:    docker compose up -d
+#   Web + FTP:   docker compose --profile ftp up -d
+services:
+  filebrowser:
+    image: filebrowser/filebrowser:v2.63.23
+    container_name: fileserver-filebrowser
+    user: "${PUID:-1000}:${PGID:-1000}"
+    volumes:
+      - ./data:/srv
+      - ./database:/database
+      - ./branding:/branding:ro
+    restart: unless-stopped
+    # not published: reached only through the web proxy below
+
+  web:
+    image: nginx:1.27.4-alpine
+    container_name: fileserver-web
+    ports:
+      - "${WEB_PORT:-8090}:8080"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - filebrowser
+    restart: unless-stopped
+
+  ftp:
+    profiles: ["ftp"]
+    image: delfer/alpine-ftp-server:latest
+    container_name: fileserver-ftp
+    ports:
+      - "21:21"
+      - "${FTP_PASV_MIN:-21000}-${FTP_PASV_MAX:-21010}:${FTP_PASV_MIN:-21000}-${FTP_PASV_MAX:-21010}"
+    environment:
+      USERS: "${FTP_USERS:-}"
+      ADDRESS: "${HOST_IP:-}"
+      MIN_PORT: "${FTP_PASV_MIN:-21000}"
+      MAX_PORT: "${FTP_PASV_MAX:-21010}"
+    volumes:
+      - ./data:/ftp/data
+    restart: unless-stopped

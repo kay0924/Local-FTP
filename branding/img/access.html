@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Folder Access</title>
+<link rel="icon" href="logo.svg">
+<style>
+:root{--bg:#120A24;--bg2:#1B0F33;--card:rgba(255,255,255,.06);--solid:#1E1339;--border:rgba(200,170,255,.18);
+  --text:#F1EAFF;--muted:#A99BC9;--purple:#9D5CFF;--magenta:#E040E8;--cyan:#4CC9F0;--ok:#3DDC97;--warn:#F5B544;--bad:#FF5C7A}
+*{box-sizing:border-box}
+html{background:radial-gradient(1200px 700px at 50% -10%,var(--bg2),var(--bg) 60%) fixed;min-height:100%}
+body{margin:0;color:var(--text);font:14px/1.45 -apple-system,"Inter","Segoe UI",Roboto,Arial,sans-serif}
+.wrap{max-width:1200px;margin:0 auto;padding:22px 20px 60px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:99px;background:var(--card);border:1px solid var(--border);
+  color:var(--text);text-decoration:none;font-size:13px;font-weight:600;cursor:pointer}
+.pill:hover{border-color:rgba(224,64,232,.5);background:rgba(255,255,255,.1)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700}
+.brand img{width:28px;height:28px;filter:drop-shadow(0 0 10px rgba(157,92,255,.5))}
+h1{margin:26px 0 0;text-align:center;font-size:30px;font-weight:800;letter-spacing:-.02em;
+  background:linear-gradient(90deg,var(--magenta),var(--purple),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+.rule{width:64px;height:4px;margin:14px auto 0;border-radius:4px;background:linear-gradient(90deg,var(--magenta),var(--purple));box-shadow:0 0 16px rgba(224,64,232,.6)}
+.lead{text-align:center;color:var(--muted);margin:12px auto 22px;max-width:640px}
+.glass{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.35);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:12px 14px;margin-bottom:14px}
+input[type=text],input[type=password],input[type=search]{font:inherit;font-size:13px;color:var(--text);background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:9px;padding:8px 11px;outline:none}
+input:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(157,92,255,.25)}
+.btn{border:0;cursor:pointer;font:inherit;font-size:13px;font-weight:700;color:#fff;padding:9px 15px;border-radius:9px;
+  background:linear-gradient(135deg,var(--magenta),var(--purple));box-shadow:0 4px 16px rgba(157,92,255,.35)}
+.btn:disabled{opacity:.4;cursor:default;box-shadow:none}
+.btn.ghost{background:rgba(255,255,255,.08);box-shadow:none;border:1px solid var(--border)}
+.spacer{flex:1}
+.scroll{overflow:auto;max-height:72vh;border-radius:14px}
+table{border-collapse:separate;border-spacing:0;width:100%}
+th,td{padding:10px 12px;border-bottom:1px solid rgba(200,170,255,.09);text-align:center;white-space:nowrap}
+thead th{position:sticky;top:0;z-index:2;background:#1A1030;font-size:12px;color:var(--muted);vertical-align:bottom}
+th.fold{cursor:pointer;min-width:92px}
+th.fold .nm{display:block;color:var(--text);font-size:13px;font-weight:700;max-width:140px;overflow:hidden;text-overflow:ellipsis;margin:0 auto}
+th.fold .ct{display:inline-block;margin-top:4px;font-size:11px;padding:1px 7px;border-radius:99px;background:rgba(157,92,255,.18);border:1px solid rgba(157,92,255,.35)}
+th.fold:hover .nm,th.fold.hl .nm{color:var(--magenta)}
+td.hl,th.hl{background:rgba(224,64,232,.07)}
+th.usr,td.usr{position:sticky;left:0;z-index:1;text-align:left;background:#170D2C;min-width:210px}
+thead th.usr{z-index:3}
+.u{display:flex;align-items:center;gap:10px}
+.av{width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0}
+.un{font-weight:700}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:6px;margin-top:2px}
+.tag.admin{color:#fff;background:rgba(224,64,232,.25);border:1px solid rgba(224,64,232,.55)}
+.tag.all{color:#C9FFE8;background:rgba(61,220,151,.15);border:1px solid rgba(61,220,151,.45)}
+.tag.custom{color:#FFE3AE;background:rgba(245,181,68,.15);border:1px solid rgba(245,181,68,.45)}
+.tag.none{color:var(--muted);background:rgba(255,255,255,.06);border:1px solid var(--border)}
+tr.changed td.usr{box-shadow:inset 3px 0 0 var(--magenta)}
+tr.changed td{background:rgba(224,64,232,.05)}
+tr:hover td{background:rgba(157,92,255,.06)}
+/* checkbox */
+.cb{appearance:none;-webkit-appearance:none;width:22px;height:22px;border-radius:7px;border:1.5px solid rgba(200,170,255,.35);background:rgba(0,0,0,.25);
+  cursor:pointer;display:inline-grid;place-content:center;transition:all .12s;margin:0;vertical-align:middle}
+.cb:hover{border-color:var(--purple)}
+.cb:checked{background:linear-gradient(135deg,var(--magenta),var(--purple));border-color:transparent;box-shadow:0 0 12px rgba(224,64,232,.45)}
+.cb:checked::after{content:"";width:6px;height:11px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.cb:disabled{cursor:not-allowed;opacity:.55}
+.cb:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.sw{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);cursor:pointer}
+.empty,.msg{padding:40px 20px;text-align:center;color:var(--muted)}
+.msg b{display:block;color:var(--text);font-size:16px;margin-bottom:6px}
+.help{margin-top:16px;padding:14px 18px;color:var(--muted);font-size:13px}
+.help b{color:var(--text)}
+.toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,40px);opacity:0;z-index:60;transition:all .25s;padding:11px 18px;border-radius:99px;
+  font-weight:700;color:#fff;background:linear-gradient(135deg,var(--magenta),var(--purple));box-shadow:0 8px 30px rgba(157,92,255,.5)}
+.toast.show{transform:translate(-50%,0);opacity:1}
+.toast.err{background:linear-gradient(135deg,#E04866,#FF5C7A)}
+.modal{position:fixed;inset:0;background:rgba(8,4,18,.65);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:70;padding:16px}
+.modal.show{display:flex}
+.dlg{width:100%;max-width:380px;padding:22px;background:rgba(30,19,57,.97)}
+.dlg h3{margin:0 0 6px}
+.dlg p{margin:0 0 14px;color:var(--muted);font-size:13px}
+.dlg input{width:100%}
+.dlg .row{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+@media(max-width:640px){.wrap{padding:16px 16px 50px}h1{font-size:24px}th.usr,td.usr{min-width:150px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="pill" href="/">&larr; Files</a>
+    <span class="brand"><img src="logo.svg" alt=""> File Server</span>
+  </div>
+  <h1>Folder Access</h1>
+  <div class="rule"></div>
+  <p class="lead">Tick the folders each person can open. Everything else stays hidden from them.
+    Admins always see everything.</p>
+
+  <div class="glass bar">
+    <input type="search" id="filter" placeholder="Find user or folder…">
+    <input type="text" id="newFolder" placeholder="New folder name">
+    <button class="btn ghost" id="mkFolder">+ Create folder</button>
+    <span class="spacer"></span>
+    <button class="btn ghost" id="undo" disabled>Undo changes</button>
+    <button class="btn" id="save" disabled>Save changes</button>
+  </div>
+
+  <div class="glass">
+    <div class="scroll"><table id="grid"></table></div>
+    <div class="msg" id="msg">Loading…</div>
+  </div>
+
+  <div class="glass help">
+    <b>How it works.</b> A ticked box lets that user see and open the folder (and everything inside it) when they log in.
+    <b>All folders</b> gives access to everything, including folders created later.
+    What a user may <i>do</i> inside (upload, delete, rename…) is still set per user in
+    <b>Settings → User Management</b>. Click a folder name to highlight who has access.
+    Users marked <span class="tag custom">custom</span> have hand-written rules — saving them replaces those rules.
+  </div>
+</div>
+
+<div class="modal" id="pwModal">
+  <div class="dlg glass">
+    <h3>Confirm it's you</h3>
+    <p>FileBrowser asks for your current admin password before changing users. It's only kept until you close this page.</p>
+    <input type="password" id="pw" placeholder="Your admin password" autocomplete="current-password">
+    <div class="row"><button class="btn ghost" id="pwCancel">Cancel</button><button class="btn" id="pwOk">Save</button></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script src="access.js?v=2"></script>
+</body>
+</html>
